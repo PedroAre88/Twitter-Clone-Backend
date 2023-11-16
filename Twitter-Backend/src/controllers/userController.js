@@ -2,31 +2,56 @@ const User = require('../models/userSchema')
 const generateToken = require('../services/tokenService');
 const verifyUserPassword = require('../services/passwordUtils');
 const Tweet = require('../models/TweetSchema');
+const tokens = {};
 
 exports.login = (req,res,next) => {
     const {username, password} = req.body;
-
-    //Logica para buscar el usuario en la base de datos
+ 
+    // Logica para buscar el usuario en la base de datos
     User.findOne({username: username}, function(err,user) {
         if (err) {
             return next(err);
         }
-
+ 
         if(!user) {
             return res.status(401).json({message: 'Usuario no Encontrado'})
         }
-
+ 
         if (!verifyUserPassword(user, password)) {
             return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
-
+ 
         const token = generateToken(user.id);
+ 
+        // Almacenar el token en la caché
+        tokens[user.id] = token;
+ 
         res.json({ token: token });
+ 
+        // Redirigir al usuario a la ruta /home
+        res.redirect(302, '/home');
     })
 }
 
+
+exports.logout = (req, res) => {
+    // Eliminar el token de la caché
+    delete tokens[req.user.id];
+  
+    // Redirigir al usuario a la página de inicio de sesión
+    res.redirect('/login');
+}
+ 
+
 exports.register = async (req,res) => {
     const {username, email, password} = req.body;
+
+    try {
+        // Verificar si el correo electrónico ya está en uso
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'El correo electrónico ya está en uso' });
+        }
 
     // Hashear la contraseña
     const hashedPassword = await hashPassword(password);
@@ -36,14 +61,14 @@ exports.register = async (req,res) => {
         username: username,
         email: email,
         password: hashedPassword,
+        bio,
         created_at: new Date(),
         followers: [],
         following: [],
         likes: []
     });
 
-    try {
-        const savedUser = await newUser.save();
+    const savedUser = await newUser.save();
         res.status(201).json(savedUser);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -91,3 +116,46 @@ exports.profile = async (req, res) => {
     }
 }
 
+
+exports.toggleFollow = async (req, res) => {
+    const userId = req.user.id;
+    const followId = req.params.id;
+
+    try {
+        const user = await User.findById(userId);
+        const followUser = await User.findById(followId);
+
+        // Verificar si el usuario ya está siguiendo al otro usuario
+        if (user.following.includes(followId)) {
+            // Si el usuario ya está siguiendo al otro, dejar de seguir
+            user.following.pull(followId);
+            followUser.followers.pull(userId);
+        } else {
+            // Si el usuario no está siguiendo al otro, seguir
+            user.following.push(followId);
+            followUser.followers.push(userId);
+        }
+
+        await user.save();
+        await followUser.save();
+
+        res.json({ message: 'Seguidos y seguidores actualizados' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+
+exports.searchUsers = async (req, res) => {
+    const searchTerm = req.query.q;
+
+    try {
+        const users = await User.find({
+            username: { $regex: searchTerm, $options: 'i' } // 'i' significa case-insensitive
+        });
+
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}

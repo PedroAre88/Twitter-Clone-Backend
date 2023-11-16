@@ -5,12 +5,7 @@ const TweetSchema = new mongoose.Schema({
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     created_at: Date,
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    comments: [{
-        content: String,
-        author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-        created_at: Date
-    }]
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]
 });
 
 module.exports = mongoose.model('Tweet', TweetSchema);

@@ -10,7 +10,7 @@ router.use(auth);
 router.get('/home', tweetController.getHomeTweets);
 
 // Ruta para crear un nuevo tweet
-router.post('/', tweetController.createTweet);
+router.post('/tweets/', tweetController.createTweet);
 
 // Ruta para obtener un tweet específico
 router.get('/:id', tweetController.getTweet);
@@ -22,6 +22,6 @@ router.put('/:id', tweetController.updateTweet);
 router.delete('/:id', tweetController.deleteTweet);
 
 // Ruta para dar like a un tweet y en caso de que lo tenga quitarselo
-router.post('/:id/like', tweetController.toggleLike);
+router.post('/tweets/:id/like', tweetController.toggleLike);
 
 module.exports = router;

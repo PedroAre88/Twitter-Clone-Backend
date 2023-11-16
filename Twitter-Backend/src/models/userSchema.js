@@ -4,6 +4,7 @@ const UserSchema = new mongoose.Schema({
     username: String,
     email: String,
     password: String,
+    bio: String,
     created_at: Date,
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
