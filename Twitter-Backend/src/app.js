@@ -4,10 +4,11 @@ const userRouter = require('./routes/users');
 const tweetRouter = require('./routes/tweets');
 const commentRouter = require('./routes/comments');
 const passport = require('./services/userVerify');
+const cors = require('cors');
 
 
 const app = express();
-
+app.use(cors());
 app.use(passport.initialize());
 
 // Conectar a la base de datos

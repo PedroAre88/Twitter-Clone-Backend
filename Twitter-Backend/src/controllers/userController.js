@@ -1,17 +1,16 @@
 const User = require('../models/userSchema')
 const generateToken = require('../services/tokenService');
-const verifyUserPassword = require('../services/passwordUtils');
-const Tweet = require('../models/tweetSchema');
+const { verifyUserPassword } = require('../services/passwordUtils');
+const Tweet = require('../models/TweetSchema');
 const tokens = {};
+const { hashPassword } = require('../services/passwordUtils');
 
-exports.login = (req,res,next) => {
+exports.login = async (req,res,next) => {
     const {username, password} = req.body;
  
-    // Logica para buscar el usuario en la base de datos
-    User.findOne({username: username}, function(err,user) {
-        if (err) {
-            return next(err);
-        }
+    try {
+        // Logica para buscar el usuario en la base de datos
+        const user = await User.findOne({username: username});
  
         if(!user) {
             return res.status(401).json({message: 'Usuario no Encontrado'})
@@ -28,9 +27,9 @@ exports.login = (req,res,next) => {
  
         res.json({ token: token });
  
-        // Redirigir al usuario a la ruta /home
-        res.redirect(302, '/home');
-    })
+    } catch(err) {
+        return next(err);
+    }
 }
 
 
@@ -106,10 +105,7 @@ exports.profile = async (req, res) => {
         const followingCount = user.following.length;
 
         res.json({
-            user: {
-                ...user,
-                bio: user.bio
-            },
+            user: user,
             tweets: tweets,
             followersCount: followersCount,
             followingCount: followingCount
