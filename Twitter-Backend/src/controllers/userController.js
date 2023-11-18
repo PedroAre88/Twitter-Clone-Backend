@@ -106,7 +106,10 @@ exports.profile = async (req, res) => {
         const followingCount = user.following.length;
 
         res.json({
-            user: user,
+            user: {
+                ...user,
+                bio: user.bio
+            },
             tweets: tweets,
             followersCount: followersCount,
             followingCount: followingCount
