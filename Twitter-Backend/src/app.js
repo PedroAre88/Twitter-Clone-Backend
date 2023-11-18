@@ -5,9 +5,10 @@ const tweetRouter = require('./routes/tweets');
 const commentRouter = require('./routes/comments');
 const passport = require('./services/userVerify');
 
-app.use(passport.initialize());
 
 const app = express();
+
+app.use(passport.initialize());
 
 // Conectar a la base de datos
 connectDB();

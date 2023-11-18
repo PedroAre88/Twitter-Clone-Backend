@@ -3,7 +3,7 @@ const router = express.Router();
 const tweetController = require('../controllers/tweetController');
 
 // Proteger todas las rutas con autenticación
-const auth = require('../middleware/auth');
+const auth = require('../middlewares/auth');
 router.use(auth);
 
 // Ruta para obtener los tweets de los usuarios seguidos

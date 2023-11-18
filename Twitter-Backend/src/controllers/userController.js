@@ -1,7 +1,7 @@
 const User = require('../models/userSchema')
 const generateToken = require('../services/tokenService');
 const verifyUserPassword = require('../services/passwordUtils');
-const Tweet = require('../models/TweetSchema');
+const Tweet = require('../models/tweetSchema');
 const tokens = {};
 
 exports.login = (req,res,next) => {
@@ -44,7 +44,7 @@ exports.logout = (req, res) => {
  
 
 exports.register = async (req,res) => {
-    const {username, email, password} = req.body;
+    const {username, email, password, bio} = req.body;
 
     try {
         // Verificar si el correo electrónico ya está en uso
@@ -61,7 +61,7 @@ exports.register = async (req,res) => {
         username: username,
         email: email,
         password: hashedPassword,
-        bio,
+        bio: bio,
         created_at: new Date(),
         followers: [],
         following: [],

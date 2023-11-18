@@ -1,4 +1,4 @@
-const Tweet = require('../models/TweetSchema');
+const Tweet = require('../models/tweetSchema');
 
 exports.getHomeTweets = async (req, res) => {
     const userId = req.user.id; 
